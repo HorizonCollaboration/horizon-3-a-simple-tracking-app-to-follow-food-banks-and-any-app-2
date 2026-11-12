@@ -68,7 +68,7 @@ export default async function MyListPage() {
               </span>
             }
             action={
-              <Link href={`/food-banks/${bank.id}`} className="text-sm font-medium text-primary hover:underline">
+              <Link href={`/food-banks/${bank.id}`} className="text-sm font-medium underline underline-offset-4 hover:text-muted-foreground">
                 See everything they need<span className="sr-only"> at {bank.name}</span>
               </Link>
             }
@@ -87,7 +87,7 @@ export default async function MyListPage() {
                       description={`Added ${formatDate(entry.addedAt)}`}
                       actions={
                         <>
-                          <ActionButton action={markGivenAction} id={entry.id} size="sm">
+                          <ActionButton action={markGivenAction} id={entry.id} variant="outline" size="sm">
                             <Check aria-hidden="true" />
                             Given<span className="sr-only">: mark {entry.need.item} as given</span>
                           </ActionButton>
