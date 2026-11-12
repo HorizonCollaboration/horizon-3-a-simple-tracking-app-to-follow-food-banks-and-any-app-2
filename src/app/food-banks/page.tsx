@@ -34,7 +34,7 @@ export default async function FoodBanksPage({ searchParams }: PageProps<"/food-b
             </Link>
           ) : (
             <p className="text-base text-ink-muted">
-              <Link href="/sign-in" className={textLinkClass}>
+              <Link href="/sign-in" className={`inline-flex min-h-11 items-center ${textLinkClass}`}>
                 Sign in
               </Link>{" "}
               to follow or add a food bank.

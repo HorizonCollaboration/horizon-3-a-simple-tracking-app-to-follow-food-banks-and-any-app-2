@@ -64,7 +64,7 @@ export default function NeedForm({ foodBankId }: { foodBankId: string }) {
           {levels.map((level) => (
             <label
               key={level}
-              className="flex min-h-11 cursor-pointer items-center gap-2 rounded-control border border-line bg-surface px-3 text-base text-ink has-[:checked]:border-primary has-[:checked]:bg-primary-soft has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary"
+              className="flex min-h-11 cursor-pointer items-center gap-2 rounded-control border border-line bg-surface px-3 text-base text-ink has-checked:border-primary has-checked:bg-primary-soft has-focus-visible:ring-2 has-focus-visible:ring-primary"
             >
               <input type="radio" name="level" value={level} defaultChecked={level === "urgent"} className="h-5 w-5" />
               {levelNames[level]}

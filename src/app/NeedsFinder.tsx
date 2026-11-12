@@ -100,7 +100,7 @@ export default function NeedsFinder({ needs, followedIds, plannedIds, signedIn }
             ) : (
               <p className="mt-1 text-base text-ink-muted">
                 Showing all.{" "}
-                <Link href="/sign-in" className={textLinkClass}>
+                <Link href="/sign-in" className={`inline-flex min-h-11 items-center ${textLinkClass}`}>
                   Sign in
                 </Link>{" "}
                 to follow food banks and see just theirs.
