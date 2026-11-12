@@ -1,12 +1,12 @@
-import Link from "next/link";
+import { Clock, MapPin, PackageCheck, Pencil } from "lucide-react";
 import { notFound } from "next/navigation";
 import AppShell from "@/components/AppShell";
-import { buttonClass } from "@/components/buttonStyles";
 import FollowButton from "@/components/FollowButton";
 import ListButton from "@/components/ListButton";
+import { categoryLook, foodBankLook } from "@/components/looks";
 import NeedBadge, { levelBadge } from "@/components/NeedBadge";
-import ScreenHeading from "@/components/ScreenHeading";
 import { db } from "@/db";
+import { Button, Card, EmptyState, List, Row, ScreenHeader, Section, Tag, Tile } from "@/kit";
 import { whenUpdated } from "@/lib/dates";
 import { listPlannedNeedIds } from "@/lib/data/donationList";
 import { listFollowedIds } from "@/lib/data/follows";
@@ -37,94 +37,85 @@ export default async function FoodBankPage({ params }: PageProps<"/food-banks/[i
 
   return (
     <AppShell current="banks" user={user}>
-      <div className="space-y-6">
-        <Link href="/food-banks" className={buttonClass("outline")}>
-          <span aria-hidden="true">←</span> Back to all food banks
-        </Link>
-
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <ScreenHeading intro={`${bank.area} · Needs updated ${whenUpdated(bank.needsUpdatedAt)}`}>{bank.name}</ScreenHeading>
-          <div className="flex flex-wrap items-center gap-2">
+      <ScreenHeader
+        back={{ label: "All food banks", href: "/food-banks" }}
+        icon={foodBankLook.icon}
+        tone={foodBankLook.tone}
+        title={bank.name}
+        description={`${bank.area} · Needs updated ${whenUpdated(bank.needsUpdatedAt)}`}
+        action={
+          <>
             {following && <NeedBadge kind="following" />}
             <FollowButton foodBankId={bank.id} name={bank.name} following={following} signedIn={Boolean(user)} />
             {user && (
-              <Link href={`/food-banks/${bank.id}/edit`} className={buttonClass("outline")}>
+              <Button href={`/food-banks/${bank.id}/edit`}>
+                <Pencil aria-hidden="true" />
                 Edit<span className="sr-only"> {bank.name}</span>
-              </Link>
+              </Button>
             )}
-          </div>
-        </div>
+          </>
+        }
+      />
 
-        <section aria-labelledby="short-title" className="rounded-card bg-surface shadow-card">
-          <h2 id="short-title" className="border-b border-line p-4 font-display text-lg font-semibold text-ink">
-            Short right now
-          </h2>
-          {needs.length === 0 ? (
-            <p className="p-6 text-center text-base text-ink">
-              Nothing is short here right now. Check back soon, or look at another food bank.
-            </p>
-          ) : (
-            <ul className="divide-y divide-line">
-              {needs.map((need) => (
-                <li key={need.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="space-y-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-base font-semibold text-ink">{need.item}</span>
-                      <NeedBadge kind={levelBadge(need.level)} />
-                    </div>
-                    <p className="text-base text-ink-muted">
-                      {need.category} · Updated {whenUpdated(need.updatedAt)}
-                    </p>
-                    {need.note && <p className="text-base text-ink">{need.note}</p>}
-                  </div>
-                  <ListButton
-                    needId={need.id}
-                    item={need.item}
-                    planned={plannedIds.includes(need.id)}
-                    signedIn={Boolean(user)}
-                    className="w-full sm:w-auto"
-                  />
+      <Section title="Short right now">
+        {needs.length === 0 ? (
+          <EmptyState icon={PackageCheck} title="Nothing is short here right now" description="Check back soon, or look at another food bank." />
+        ) : (
+          <List>
+            {needs.map((need) => {
+              const look = categoryLook(need.category);
+
+              return (
+                <Row
+                  key={need.id}
+                  media={<Tile icon={look.icon} tone={look.tone} />}
+                  title={need.item}
+                  description={`${need.category} · Updated ${whenUpdated(need.updatedAt)}`}
+                  actions={<ListButton needId={need.id} item={need.item} planned={plannedIds.includes(need.id)} signedIn={Boolean(user)} />}
+                >
+                  <NeedBadge kind={levelBadge(need.level)} />
+                  {need.note && <span className="text-sm text-muted-foreground">{need.note}</span>}
+                </Row>
+              );
+            })}
+          </List>
+        )}
+      </Section>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card title="Where and when to drop off">
+          <dl className="flex flex-col gap-3 text-sm">
+            <div className="flex gap-3">
+              <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <div>
+                <dt className="sr-only">Where</dt>
+                <dd>{bank.dropOffPlace}</dd>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Clock className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <div>
+                <dt className="sr-only">When</dt>
+                <dd>{bank.dropOffTimes}</dd>
+              </div>
+            </div>
+          </dl>
+        </Card>
+
+        <Card
+          title="They have plenty of"
+          description={plenty.length === 0 ? "They haven't said yet." : "Please give something else for now."}
+        >
+          {plenty.length > 0 && (
+            <ul className="flex flex-wrap gap-1.5">
+              {plenty.map((item, index) => (
+                <li key={index}>
+                  <Tag tone="good">{item}</Tag>
                 </li>
               ))}
             </ul>
           )}
-        </section>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          <section aria-labelledby="plenty-title" className="rounded-card bg-surface p-4 shadow-card">
-            <h2 id="plenty-title" className="font-display text-lg font-semibold text-ink">
-              They have plenty of
-            </h2>
-            {plenty.length === 0 ? (
-              <p className="mt-1 text-base text-ink-muted">They haven&apos;t said yet.</p>
-            ) : (
-              <>
-                <p className="mt-1 text-base text-ink-muted">Please give something else for now.</p>
-                <ul className="mt-3 list-disc space-y-1 pl-5 text-base text-ink">
-                  {plenty.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </section>
-
-          <section aria-labelledby="dropoff-title" className="rounded-card bg-surface p-4 shadow-card">
-            <h2 id="dropoff-title" className="font-display text-lg font-semibold text-ink">
-              Where and when to drop off
-            </h2>
-            <dl className="mt-3 space-y-3 text-base">
-              <div>
-                <dt className="text-ink-muted">Where</dt>
-                <dd className="text-ink">{bank.dropOffPlace}</dd>
-              </div>
-              <div>
-                <dt className="text-ink-muted">When</dt>
-                <dd className="text-ink">{bank.dropOffTimes}</dd>
-              </div>
-            </dl>
-          </section>
-        </div>
+        </Card>
       </div>
     </AppShell>
   );

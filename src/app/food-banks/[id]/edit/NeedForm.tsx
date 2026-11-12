@@ -1,7 +1,8 @@
 "use client";
 
+import { Plus } from "lucide-react";
 import { startTransition, useActionState, useEffect, useRef } from "react";
-import { buttonClass, inputClass } from "@/components/buttonStyles";
+import { Button, Field, FormMessage, Segmented, Select } from "@/kit";
 import type { FormState } from "@/lib/actionResult";
 import { categories, levelNames, levels } from "@/lib/needs";
 import { addNeedAction } from "../../actions";
@@ -27,80 +28,32 @@ export default function NeedForm({ foodBankId }: { foodBankId: string }) {
         const data = new FormData(event.currentTarget);
         startTransition(() => formAction(data));
       }}
-      className="space-y-4"
+      className="flex flex-col gap-5"
     >
       <input type="hidden" name="foodBankId" value={foodBankId} />
-      <div>
-        <label htmlFor="need-item" className="text-base font-medium text-ink">
-          Item
-        </label>
-        <input
-          id="need-item"
-          name="item"
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label="Item" name="item" required maxLength={120} placeholder="For example: Tinned tomatoes" />
+        <Select
+          label="Type of item"
+          name="category"
           required
-          maxLength={120}
-          placeholder="For example: Tinned tomatoes"
-          className={inputClass}
+          placeholder="Choose a type"
+          className="md:w-full"
+          options={categories.map((category) => ({ value: category, label: category }))}
         />
       </div>
-      <div>
-        <label htmlFor="need-category" className="text-base font-medium text-ink">
-          Type of item
-        </label>
-        <select id="need-category" name="category" required defaultValue="" className={inputClass}>
-          <option value="" disabled>
-            Choose a type
-          </option>
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-      </div>
-      <fieldset>
-        <legend className="text-base font-medium text-ink">How short are they?</legend>
-        <div className="mt-1 grid grid-cols-2 gap-2">
-          {levels.map((level) => (
-            <label
-              key={level}
-              className="flex min-h-11 cursor-pointer items-center gap-2 rounded-control border border-line bg-surface px-3 text-base text-ink has-checked:border-primary has-checked:bg-primary-soft has-focus-visible:ring-2 has-focus-visible:ring-primary"
-            >
-              <input type="radio" name="level" value={level} defaultChecked={level === "urgent"} className="h-5 w-5" />
-              {levelNames[level]}
-            </label>
-          ))}
-        </div>
-      </fieldset>
-      <div>
-        <label htmlFor="need-note" className="text-base font-medium text-ink">
-          Note (optional)
-        </label>
-        <input
-          id="need-note"
-          name="note"
-          maxLength={200}
-          placeholder="For example: Long-life cartons only, please."
-          className={inputClass}
-        />
-      </div>
-      <div role="status" aria-live="polite">
-        {state.error && (
-          <p className="rounded-card bg-danger-soft p-3 text-base text-danger">
-            <span aria-hidden="true">! </span>
-            {state.error}
-          </p>
-        )}
-        {state.message && (
-          <p className="rounded-card bg-success-soft p-3 text-base text-success">
-            <span aria-hidden="true">✓ </span>
-            {state.message}
-          </p>
-        )}
-      </div>
-      <button type="submit" disabled={pending} className={buttonClass("primary", "w-full sm:w-auto")}>
+      <Segmented
+        label="How short are they?"
+        name="level"
+        defaultValue="urgent"
+        options={levels.map((level) => ({ value: level, label: levelNames[level] }))}
+      />
+      <Field label="Note (optional)" name="note" maxLength={200} placeholder="For example: Long-life cartons only, please." />
+      <FormMessage error={state.error} message={state.message} />
+      <Button type="submit" variant="primary" disabled={pending} className="w-full sm:w-fit">
+        <Plus aria-hidden="true" />
         {pending ? "Adding…" : "Add need"}
-      </button>
+      </Button>
     </form>
   );
 }

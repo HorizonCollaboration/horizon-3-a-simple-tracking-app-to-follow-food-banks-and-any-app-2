@@ -1,8 +1,8 @@
 "use client";
 
 import { useTransition, type ReactNode } from "react";
+import { Button, type ButtonVariant } from "@/kit";
 import type { ActionResult } from "@/lib/actionResult";
-import { buttonClass, type ButtonVariant } from "./buttonStyles";
 import { useFlash } from "./Flash";
 
 type Props = {
@@ -10,18 +10,20 @@ type Props = {
   id: string;
   value?: string;
   variant?: ButtonVariant;
+  size?: "sm" | "md";
   className?: string;
   children: ReactNode;
 };
 
 /** A button that runs one server action and then says what happened. */
-export default function ActionButton({ action, id, value, variant = "primary", className = "", children }: Props) {
+export default function ActionButton({ action, id, value, variant = "primary", size = "md", className, children }: Props) {
   const [pending, startTransition] = useTransition();
   const say = useFlash();
 
   return (
-    <button
-      type="button"
+    <Button
+      variant={variant}
+      size={size}
       disabled={pending}
       aria-busy={pending}
       onClick={() =>
@@ -31,9 +33,9 @@ export default function ActionButton({ action, id, value, variant = "primary", c
           if (result) say(result);
         })
       }
-      className={buttonClass(variant, className)}
+      className={className}
     >
       {children}
-    </button>
+    </Button>
   );
 }

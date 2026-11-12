@@ -1,25 +1,27 @@
-import Link from "next/link";
+import { Bell, BellOff } from "lucide-react";
 import { followAction, unfollowAction } from "@/app/food-banks/actions";
+import { Button } from "@/kit";
 import ActionButton from "./ActionButton";
-import { buttonClass } from "./buttonStyles";
 
-type Props = { foodBankId: string; name: string; following: boolean; signedIn: boolean };
+type Props = { foodBankId: string; name: string; following: boolean; signedIn: boolean; size?: "sm" | "md" };
 
-export default function FollowButton({ foodBankId, name, following, signedIn }: Props) {
+export default function FollowButton({ foodBankId, name, following, signedIn, size = "md" }: Props) {
   if (!signedIn) {
     return (
-      <Link href="/sign-in" className={buttonClass("outline")}>
+      <Button href="/sign-in" size={size}>
         Sign in to follow<span className="sr-only"> {name}</span>
-      </Link>
+      </Button>
     );
   }
 
   return following ? (
-    <ActionButton action={unfollowAction} id={foodBankId} variant="outline">
+    <ActionButton action={unfollowAction} id={foodBankId} variant="ghost" size={size}>
+      <BellOff aria-hidden="true" />
       Stop following<span className="sr-only"> {name}</span>
     </ActionButton>
   ) : (
-    <ActionButton action={followAction} id={foodBankId}>
+    <ActionButton action={followAction} id={foodBankId} variant="secondary" size={size}>
+      <Bell aria-hidden="true" />
       Follow<span className="sr-only"> {name}</span>
     </ActionButton>
   );

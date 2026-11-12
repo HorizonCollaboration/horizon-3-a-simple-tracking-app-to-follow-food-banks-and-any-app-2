@@ -1,6 +1,7 @@
+import { HandHeart } from "lucide-react";
 import AppShell from "@/components/AppShell";
-import ScreenHeading from "@/components/ScreenHeading";
 import { db } from "@/db";
+import { ScreenHeader } from "@/kit";
 import { whenUpdated } from "@/lib/dates";
 import { listPlannedNeedIds } from "@/lib/data/donationList";
 import { listFollowedIds } from "@/lib/data/follows";
@@ -21,26 +22,27 @@ export default async function WhatsNeededPage() {
 
   return (
     <AppShell current="needs" user={user}>
-      <div className="space-y-6">
-        <ScreenHeading intro="What food banks are short of right now, most urgent first. Add items to your list before you shop.">
-          What&apos;s needed
-        </ScreenHeading>
-        <NeedsFinder
-          signedIn={Boolean(user)}
-          followedIds={followedIds}
-          plannedIds={plannedIds}
-          needs={needs.map((need) => ({
-            id: need.id,
-            item: need.item,
-            category: need.category,
-            level: need.level,
-            note: need.note,
-            foodBankId: need.foodBankId,
-            foodBankName: need.foodBankName,
-            updated: whenUpdated(need.updatedAt, now),
-          }))}
-        />
-      </div>
+      <ScreenHeader
+        icon={HandHeart}
+        tone="orange"
+        title="What's needed"
+        description="What food banks are short of right now, most urgent first. Add items to your list before you shop."
+      />
+      <NeedsFinder
+        signedIn={Boolean(user)}
+        followedIds={followedIds}
+        plannedIds={plannedIds}
+        needs={needs.map((need) => ({
+          id: need.id,
+          item: need.item,
+          category: need.category,
+          level: need.level,
+          note: need.note,
+          foodBankId: need.foodBankId,
+          foodBankName: need.foodBankName,
+          updated: whenUpdated(need.updatedAt, now),
+        }))}
+      />
     </AppShell>
   );
 }

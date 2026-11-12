@@ -1,27 +1,25 @@
 import type { ReactNode } from "react";
+import { Tag, type TagTone } from "@/kit";
 
-const styles = {
-  urgent: { text: "Urgent", className: "bg-danger-soft text-danger", mark: "!" },
-  low: { text: "Running low", className: "bg-warning-soft text-warning", mark: "•" },
-  following: { text: "Following", className: "bg-primary-soft text-primary", mark: "✓" },
-  given: { text: "Given", className: "bg-success-soft text-success", mark: "✓" },
-  stocked: { text: "Nothing short", className: "bg-success-soft text-success", mark: "✓" },
-  gone: { text: "No longer needed", className: "bg-sunken text-ink-muted", mark: "–" },
+const styles: Record<string, { text: string; tone: TagTone }> = {
+  urgent: { text: "Urgent", tone: "urgent" },
+  low: { text: "Running low", tone: "warning" },
+  following: { text: "Following", tone: "primary" },
+  given: { text: "Given", tone: "good" },
+  stocked: { text: "Nothing short", tone: "good" },
+  gone: { text: "No longer needed", tone: "neutral" },
 };
 
-export type BadgeKind = keyof typeof styles;
+export type BadgeKind = "urgent" | "low" | "following" | "given" | "stocked" | "gone";
 
 /** A small label that always says its meaning in words, never by colour alone. */
 export default function NeedBadge({ kind, children }: { kind: BadgeKind; children?: ReactNode }) {
   const style = styles[kind];
 
   return (
-    <span
-      className={`inline-flex items-center gap-1 whitespace-nowrap rounded-control px-2 py-0.5 text-sm font-semibold ${style.className}`}
-    >
-      <span aria-hidden="true">{style.mark}</span>
+    <Tag tone={style.tone} dot>
       {children ?? style.text}
-    </span>
+    </Tag>
   );
 }
 
