@@ -1,0 +1,7 @@
+/* Fixed by Horizon: don't change this file. The app's style is in src/theme.css. */
+@import "tailwindcss";
+@import "../theme.css";
+
+body {
+  @apply bg-canvas text-ink font-sans antialiased;
+}
