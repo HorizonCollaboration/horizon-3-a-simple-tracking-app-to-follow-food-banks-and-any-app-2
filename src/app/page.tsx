@@ -1,31 +1,46 @@
-import Link from "next/link";
-import horizon from "@/horizon.json";
+import AppShell from "@/components/AppShell";
+import ScreenHeading from "@/components/ScreenHeading";
+import { db } from "@/db";
+import { whenUpdated } from "@/lib/dates";
+import { listPlannedNeedIds } from "@/lib/data/donationList";
+import { listFollowedIds } from "@/lib/data/follows";
+import { listCurrentNeeds } from "@/lib/data/needs";
+import { ensureSampleData } from "@/lib/data/sampleData";
 import { currentUser } from "@/lib/session";
-import { signOut } from "./sign-in/actions";
+import NeedsFinder from "./NeedsFinder";
 
-export default async function Home() {
+/** What's needed: every food bank's needs in one list. Anyone can see it. */
+export default async function WhatsNeededPage() {
+  // Reading who's signed in also makes sure the screen is never built ahead of time.
   const user = await currentUser();
+  await ensureSampleData(db);
+  const needs = await listCurrentNeeds(db);
+  const followedIds = user ? await listFollowedIds(db, user.id) : [];
+  const plannedIds = user ? await listPlannedNeedIds(db, user.id) : [];
+  const now = new Date();
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 p-6">
-      <h1 className="font-display text-2xl font-semibold">{horizon.name}</h1>
-      {user ? (
-        <div className="flex items-center justify-between gap-4 rounded-card bg-surface p-4 shadow-card">
-          <p>Signed in as {user.email}</p>
-          <form action={signOut}>
-            <button type="submit" className="min-h-11 rounded-control border border-line px-4">
-              Sign out
-            </button>
-          </form>
-        </div>
-      ) : (
-        <Link
-          href="/sign-in"
-          className="inline-flex min-h-11 w-fit items-center rounded-control bg-primary px-4 font-medium text-on-primary"
-        >
-          Sign in
-        </Link>
-      )}
-    </main>
+    <AppShell current="needs" user={user}>
+      <div className="space-y-6">
+        <ScreenHeading intro="What food banks are short of right now, most urgent first. Add items to your list before you shop.">
+          What&apos;s needed
+        </ScreenHeading>
+        <NeedsFinder
+          signedIn={Boolean(user)}
+          followedIds={followedIds}
+          plannedIds={plannedIds}
+          needs={needs.map((need) => ({
+            id: need.id,
+            item: need.item,
+            category: need.category,
+            level: need.level,
+            note: need.note,
+            foodBankId: need.foodBankId,
+            foodBankName: need.foodBankName,
+            updated: whenUpdated(need.updatedAt, now),
+          }))}
+        />
+      </div>
+    </AppShell>
   );
 }
